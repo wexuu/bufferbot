@@ -190,4 +190,4 @@ var datetime = " " + currentdate.getDate() + "/"
                                 
         
     
- client.login(token);
+ client.login(process.env.BOT_TOKEN);
