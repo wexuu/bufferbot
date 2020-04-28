@@ -27,7 +27,6 @@ var datetime = " " + currentdate.getDate() + "/"
                 db.run(`CREATE TABLE IF NOT EXISTS bufferpoints(userid INTEGER NOT NULL, points NUMBER NOT NULL)`)    
 
                 if(message.content.startsWith(`${prefix}bufferstart`)){
-                    message.delete()
                     if(message.member.roles.cache.find(r => r.name === "Donations")) {
                     const bstartembed = new Discord.MessageEmbed()
                     .setTitle('Buffer reminders')
@@ -61,7 +60,6 @@ var datetime = " " + currentdate.getDate() + "/"
                     if(err) throw err;
                                 if (message.content.startsWith(`${prefix}bclear`)) {
                                     message.delete()
-                                    
                                     if(message.member.roles.cache.find(r => r.name === "Walls")) {
                                     var bufferpierwszy = 1;
                                     if(row === undefined) {
@@ -109,9 +107,7 @@ var datetime = " " + currentdate.getDate() + "/"
                                 }
                                 
                                   if (message.content.startsWith(`${prefix}bfound`)) {
-        
                                     message.delete()
-
                                     if(message.member.roles.cache.find(r => r.name === "Walls")) {
 
                                     clearInterval(interval);
@@ -153,8 +149,7 @@ var datetime = " " + currentdate.getDate() + "/"
                                 }
                                 }
                                 if(message.content.startsWith(`${prefix}bufferstop`)) {
-                                    
-                                    if(message.member.roles.cache.find(r => r.name === "Donations")) {
+                                     if(message.member.roles.cache.find(r => r.name === "Donations")) {
                                     clearInterval(interval);
                                     const bstopembed = new Discord.MessageEmbed()
                                     .setTitle('Buffer reminders')
