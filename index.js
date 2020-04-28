@@ -28,6 +28,7 @@ var datetime = " " + currentdate.getDate() + "/"
 
                 if(message.content.startsWith(`${prefix}bufferstart`)){
                     message.delete()
+                    if(message.member.roles.cache.find(r => r.name === "Donations")) {
                     const bstartembed = new Discord.MessageEmbed()
                     .setTitle('Buffer reminders')
                     .setColor('#0BFFC8')
@@ -49,8 +50,11 @@ var datetime = " " + currentdate.getDate() + "/"
                             msg.delete({timeout: 3599000})
                         });
                     }, 3600000)
-                };                   
-                
+                } else {
+                    message.channel.send("don't know what to put here")
+                }               
+            }
+       
                 let userid = message.author.toString()
                 let query = `SELECT * FROM bufferpoints WHERE userid = ?`
                 db.get(query, [userid], (err, row) => {
@@ -58,6 +62,7 @@ var datetime = " " + currentdate.getDate() + "/"
                                 if (message.content.startsWith(`${prefix}bclear`)) {
                                     message.delete()
                                     
+                                    if(message.member.roles.cache.find(r => r.name === "Walls")) {
                                     var bufferpierwszy = 1;
                                     if(row === undefined) {
                                       let insert = db.prepare(`INSERT INTO bufferpoints VALUES(?, ?)`)
@@ -98,11 +103,16 @@ var datetime = " " + currentdate.getDate() + "/"
         
                                     message.channel.send(BufferClear);
                                     lastbuffer = 0;
+                                    } else {
+                                        message.channel.send('stop it')
                                     }
-                                 
+                                }
+                                
                                   if (message.content.startsWith(`${prefix}bfound`)) {
         
                                     message.delete()
+
+                                    if(message.member.roles.cache.find(r => r.name === "Walls")) {
 
                                     clearInterval(interval);
 
@@ -139,14 +149,21 @@ var datetime = " " + currentdate.getDate() + "/"
                                                 msg.delete({timeout: 3599000})
                                             });
                                     },3600000) 
-                                 } 
+                                 
+                                }
+                                }
                                 if(message.content.startsWith(`${prefix}bufferstop`)) {
+                                    
+                                    if(message.member.roles.cache.find(r => r.name === "Donations")) {
                                     clearInterval(interval);
                                     const bstopembed = new Discord.MessageEmbed()
                                     .setTitle('Buffer reminders')
                                     .setColor('#0BFFC8')
                                     .setDescription('Buffer reminders are now ' + "**" + "disabled!" + "**")
                                     message.channel.send(bstopembed)
+                                    } else {
+                                        message.channel.send('nononono')
+                                    }
                                 }
                                 if(message.content.startsWith(`${prefix}btop`)){
                                     if(message.member.roles.cache.find(r => r.name === "Walls")) {
@@ -181,11 +198,11 @@ var datetime = " " + currentdate.getDate() + "/"
                                 }
 
                             })
-                            })
-                        
-                        
-                        
                             
+            
+                        
+                        
+                        })      
 
                                 
         
