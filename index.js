@@ -64,14 +64,9 @@ var datetime = " " + currentdate.getDate() + "/"
                                     
                                     if(message.member.roles.cache.find(r => r.name === "Walls")) {
                                     var bufferpierwszy = 1;
-                                    if(row === undefined) {
-                                      let insert = db.prepare(`INSERT INTO bufferpoints VALUES(?, ?)`)
-                                      insert.run(userid, bufferpierwszy);
-
-                                    } else {
                                         row.points++;
                                         db.run(`UPDATE bufferpoints SET points = ? WHERE userid = ?`, [row.points, userid])
-                                    }
+                 
                                     clearInterval(interval);
       
                                     const BufferClear = new Discord.MessageEmbed()
