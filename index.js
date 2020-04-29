@@ -12,8 +12,7 @@ var datetime = " " + currentdate.getDate() + "/"
     + (currentdate.getMonth()+1)  + "/" 
     + currentdate.getFullYear() + " "  
     + currentdate.getHours() + ":"  
-    + currentdate.getMinutes() + ":" 
-    + currentdate.getSeconds();
+    + currentdate.getMinutes();
 
 
         client.once('ready', () => {
@@ -43,10 +42,10 @@ var datetime = " " + currentdate.getDate() + "/"
                     .setThumbnail('https://art.pixilart.com/88534e2f28b65a4.png')
                     .setFooter('WEEEEEWOOOOO')
                     .setTimestamp();
-                    client.channels.cache.get("700489735352746045").send('<@&675688526460878848>').then(msg => {
+                    client.channels.cache.get("705099481586073641").send('<@&675688526460878848>').then(msg => {
                         msg.delete();
                     })
-                        client.channels.cache.get("700489735352746045").send(Buffer).then(msg => {
+                        client.channels.cache.get("705099481586073641").send(Buffer).then(msg => {
                             msg.delete({timeout: 3599000})
                         });
                     }, 3600000)
@@ -88,10 +87,10 @@ var datetime = " " + currentdate.getDate() + "/"
                                             .setThumbnail('https://art.pixilart.com/88534e2f28b65a4.png')
                                             .setFooter('WEEEEEWOOOOO')
                                             .setTimestamp();
-                                               client.channels.cache.get("700489735352746045").send('<@&675688526460878848>').then(msg => {
+                                               client.channels.cache.get("705099481586073641").send('<@&675688526460878848>').then(msg => {
                                                 msg.delete();
                                             })
-                                                client.channels.cache.get("700489735352746045").send(Buffer).then(msg => {
+                                                client.channels.cache.get("705099481586073641").send(Buffer).then(msg => {
                                                     msg.delete({timeout: 3599000})
                                                 });
                                         },3600000)
@@ -123,10 +122,10 @@ var datetime = " " + currentdate.getDate() + "/"
                                         .setFooter('we got splitL')
                                         
         
-                                    client.channels.cache.get("700489735352746045").send("<@&675688526460878848> Stay alert! Enemies on our walls!")
-                                    client.channels.cache.get("700489735352746045").send("<@&675688526460878848> Stay alert! Enemies on our walls!")
-                                    client.channels.cache.get("700489735352746045").send("<@&675688526460878848> Stay alert! Enemies on our walls!")
-                                    client.channels.cache.get("700489735352746045").send(BufferNClear)
+                                    client.channels.cache.get("705099481586073641").send("<@&675688526460878848> Stay alert! Enemies on our walls!")
+                                    client.channels.cache.get("705099481586073641").send("<@&675688526460878848> Stay alert! Enemies on our walls!")
+                                    client.channels.cache.get("705099481586073641").send("<@&675688526460878848> Stay alert! Enemies on our walls!")
+                                    client.channels.cache.get("705099481586073641").send(BufferNClear)
                                     lastbuffer = 0;  
                                     interval = setInterval(function(){
                                         lastbuffer++;
@@ -137,10 +136,10 @@ var datetime = " " + currentdate.getDate() + "/"
                                         .setThumbnail('https://art.pixilart.com/88534e2f28b65a4.png')
                                         .setFooter('WEEEEEWOOOOO')
                                         .setTimestamp();
-                                        client.channels.cache.get("700489735352746045").send('<@&675688526460878848>').then(msg => {
+                                        client.channels.cache.get("705099481586073641").send('<@&675688526460878848>').then(msg => {
                                             msg.delete();
                                         })
-                                            client.channels.cache.get("700489735352746045").send(Buffer).then(msg => {
+                                            client.channels.cache.get("705099481586073641").send(Buffer).then(msg => {
                                                 msg.delete({timeout: 3599000})
                                             });
                                     },3600000) 
