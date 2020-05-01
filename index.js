@@ -12,7 +12,8 @@ var datetime = " " + currentdate.getDate() + "/"
     + (currentdate.getMonth()+1)  + "/" 
     + currentdate.getFullYear() + " "  
     + currentdate.getHours() + ":"  
-    + currentdate.getMinutes();
+    + currentdate.getMinutes() + ":" 
+    + currentdate.getSeconds();
 
 
         client.once('ready', () => {
@@ -27,7 +28,6 @@ var datetime = " " + currentdate.getDate() + "/"
 
                 if(message.content.startsWith(`${prefix}bufferstart`)){
                     message.delete()
-                    if(message.member.roles.cache.find(r => r.name === "Donations")) {
                     const bstartembed = new Discord.MessageEmbed()
                     .setTitle('Buffer reminders')
                     .setColor('#0BFFC8')
@@ -42,18 +42,15 @@ var datetime = " " + currentdate.getDate() + "/"
                     .setThumbnail('https://art.pixilart.com/88534e2f28b65a4.png')
                     .setFooter('WEEEEEWOOOOO')
                     .setTimestamp();
-                    client.channels.cache.get("705099481586073641").send('<@&675688526460878848>').then(msg => {
+                    client.channels.cache.get("700489735352746045").send('<@&675688526460878848>').then(msg => {
                         msg.delete();
                     })
-                        client.channels.cache.get("705099481586073641").send(Buffer).then(msg => {
+                        client.channels.cache.get("700489735352746045").send(Buffer).then(msg => {
                             msg.delete({timeout: 3599000})
                         });
                     }, 3600000)
-                } else {
-                    message.channel.send("don't know what to put here")
-                }               
-            }
-       
+                };                   
+                
                 let userid = message.author.toString()
                 let query = `SELECT * FROM bufferpoints WHERE userid = ?`
                 db.get(query, [userid], (err, row) => {
@@ -61,11 +58,15 @@ var datetime = " " + currentdate.getDate() + "/"
                                 if (message.content.startsWith(`${prefix}bclear`)) {
                                     message.delete()
                                     
-                                    if(message.member.roles.cache.find(r => r.name === "Walls")) {
                                     var bufferpierwszy = 1;
+                                    if(row === undefined) {
+                                      let insert = db.prepare(`INSERT INTO bufferpoints VALUES(?, ?)`)
+                                      insert.run(userid, bufferpierwszy);
+
+                                    } else {
                                         row.points++;
                                         db.run(`UPDATE bufferpoints SET points = ? WHERE userid = ?`, [row.points, userid])
-                 
+                                    }
                                     clearInterval(interval);
       
                                     const BufferClear = new Discord.MessageEmbed()
@@ -87,26 +88,21 @@ var datetime = " " + currentdate.getDate() + "/"
                                             .setThumbnail('https://art.pixilart.com/88534e2f28b65a4.png')
                                             .setFooter('WEEEEEWOOOOO')
                                             .setTimestamp();
-                                               client.channels.cache.get("705099481586073641").send('<@&675688526460878848>').then(msg => {
+                                               client.channels.cache.get("700489735352746045").send('<@&675688526460878848>').then(msg => {
                                                 msg.delete();
                                             })
-                                                client.channels.cache.get("705099481586073641").send(Buffer).then(msg => {
+                                                client.channels.cache.get("700489735352746045").send(Buffer).then(msg => {
                                                     msg.delete({timeout: 3599000})
                                                 });
                                         },3600000)
         
                                     message.channel.send(BufferClear);
                                     lastbuffer = 0;
-                                    } else {
-                                        message.channel.send('stop it')
                                     }
-                                }
-                                
+                                 
                                   if (message.content.startsWith(`${prefix}bfound`)) {
         
                                     message.delete()
-
-                                    if(message.member.roles.cache.find(r => r.name === "Walls")) {
 
                                     clearInterval(interval);
 
@@ -122,10 +118,10 @@ var datetime = " " + currentdate.getDate() + "/"
                                         .setFooter('we got splitL')
                                         
         
-                                    client.channels.cache.get("705099481586073641").send("<@&675688526460878848> Stay alert! Enemies on our walls!")
-                                    client.channels.cache.get("705099481586073641").send("<@&675688526460878848> Stay alert! Enemies on our walls!")
-                                    client.channels.cache.get("705099481586073641").send("<@&675688526460878848> Stay alert! Enemies on our walls!")
-                                    client.channels.cache.get("705099481586073641").send(BufferNClear)
+                                    client.channels.cache.get("700489735352746045").send("<@&675688526460878848> Stay alert! Enemies on our walls!")
+                                    client.channels.cache.get("700489735352746045").send("<@&675688526460878848> Stay alert! Enemies on our walls!")
+                                    client.channels.cache.get("700489735352746045").send("<@&675688526460878848> Stay alert! Enemies on our walls!")
+                                    client.channels.cache.get("700489735352746045").send(BufferNClear)
                                     lastbuffer = 0;  
                                     interval = setInterval(function(){
                                         lastbuffer++;
@@ -136,39 +132,26 @@ var datetime = " " + currentdate.getDate() + "/"
                                         .setThumbnail('https://art.pixilart.com/88534e2f28b65a4.png')
                                         .setFooter('WEEEEEWOOOOO')
                                         .setTimestamp();
-                                        client.channels.cache.get("705099481586073641").send('<@&675688526460878848>').then(msg => {
+                                        client.channels.cache.get("700489735352746045").send('<@&675688526460878848>').then(msg => {
                                             msg.delete();
                                         })
-                                            client.channels.cache.get("705099481586073641").send(Buffer).then(msg => {
+                                            client.channels.cache.get("700489735352746045").send(Buffer).then(msg => {
                                                 msg.delete({timeout: 3599000})
                                             });
                                     },3600000) 
-                                 
-                                } else {
-                                    message.channel.send('no perms so fuck off')
-                                }
-                                }
+                                 } 
                                 if(message.content.startsWith(`${prefix}bufferstop`)) {
-                                    message.delete()
-                                    if(message.member.roles.cache.find(r => r.name === "Donations")) {
                                     clearInterval(interval);
                                     const bstopembed = new Discord.MessageEmbed()
                                     .setTitle('Buffer reminders')
                                     .setColor('#0BFFC8')
                                     .setDescription('Buffer reminders are now ' + "**" + "disabled!" + "**")
                                     message.channel.send(bstopembed)
-                                    } else {
-                                        message.channel.send('nononono')
-                                    }
                                 }
                                 if(message.content.startsWith(`${prefix}btop`)){
-                                    message.delete()
                                     if(message.member.roles.cache.find(r => r.name === "Walls")) {
-                                        let splitMessage = message.content.split(" ");
-                                            btoppage = splitMessage[1];
-                                            if(!btoppage) {
-                                                var description = ""
-                                    let all = `SELECT userid , points FROM bufferpoints ORDER BY points DESC LIMIT 20;`
+                                        var description = ""
+                                    let all = `SELECT userid , points FROM bufferpoints ORDER BY points DESC LIMIT 10;`
                                     db.all(all, (err, row) => {
                                         if(err) throw err;
                                     const topembed = new Discord.MessageEmbed()
@@ -187,19 +170,78 @@ var datetime = " " + currentdate.getDate() + "/"
                                         topembed.setDescription(description)
                                         message.channel.send(topembed)
                                     })
-                                } 
-                                            } else {
-                                                message.channel.send('Why u tryna inside')
-                                            }
+                                } else {
+                                    message.channel.send('Why u tryna inside');
+                                }
                             
                                 }
 
                             })
+                            if(message.content.startsWith(`${prefix}poll`)) {
+                                message.delete()
+                                if(message.member.roles.cache.find(r => r.name === "Donations")) {
+                                const args = message.content.slice(prefix.lenght).trim().split(/ +/g);
+                                let poll = args.slice(1).join(" ")
+                                const pollembed = new Discord.MessageEmbed()
+                                .setColor(`#e43f5a`)
+                                .setDescription(poll)
+                                .setFooter("just vote")
+                                .setTimestamp()
+                                .setImage(message.author.avatarURL)
+                                message.channel.send(pollembed).then(msg => {
+                                    msg.react("✅")
+                                    msg.react("❌")
+                                })
+                                
+
+
+
+                            } else {
+                                message.channel.send("can't do that")
+                                return;
+                            }
+                            }    
+                            var blacklist = ["obsop", "obs op", "freecamop", "freecam op"]
+                            let found = false;
+                            let role = message.guild.roles.cache.find(role => role.name.toLowerCase() === "i have a little dick")
+                            for(var i in blacklist) {
+                            if(message.content.toLowerCase().includes(blacklist[i].toLowerCase())) found = true;
+                            }
+                            if(found === true) {
+                                if(message.member.roles.cache.has(role.id)){
+                                    return;
+                                } else {
+                                message.member.roles.add(role)
+                                message.reply("Congratulations, your roles have been updated!")
+                                }
+                            }
+                            if(message.content.startsWith(`${prefix}gay`)) {
+                                userid = message.mentions.members.first()
+                                var gaynumber = Math.ceil(Math.random() * 101);
+                                if(!userid) {
+                                    userid = message.author.id
+                                    const gayembed = new Discord.MessageEmbed()
+                                    .setColor(`#FF00F7`)
+                                    .setDescription("🏳️‍🌈 <@" + userid + "> is gay in: **" + gaynumber + "%** 🏳️‍🌈")
+                                    message.channel.send(gayembed)
+                                } else {
+                                    const gayembed = new Discord.MessageEmbed()
+                                    .setColor(`#FF00F7`)
+                                    .setDescription("🏳️‍🌈 <@" + userid + "> is gay in: **" + gaynumber + "%** 🏳️‍🌈")
+                                    message.channel.send(gayembed)
+                                }
+                                
+                            }
+                        
+                        
+                        
+                        
+                        
+                        })
+                        
+                        
+                        
                             
-            
-                        
-                        
-                        })      
 
                                 
         
