@@ -222,12 +222,12 @@ var datetime = " " + currentdate.getDate() + "/"
                                     userid = message.author.id
                                     const gayembed = new Discord.MessageEmbed()
                                     .setColor(`#FF00F7`)
-                                    .setDescription("🏳️‍🌈 <@" + userid + "> is gay in: **" + gaynumber + "%** 🏳️‍🌈")
+                                    .setDescription("🏳️‍🌈 <@" + userid + "> is **" + gaynumber + "%** gay 🏳️‍🌈")
                                     message.channel.send(gayembed)
                                 } else {
                                     const gayembed = new Discord.MessageEmbed()
                                     .setColor(`#FF00F7`)
-                                    .setDescription("🏳️‍🌈 <@" + userid + "> is gay in: **" + gaynumber + "%** 🏳️‍🌈")
+                                    .setDescription("🏳️‍🌈 <@" + userid + "> is **" + gaynumber + "%** gay 🏳️‍🌈")
                                     message.channel.send(gayembed)
                                 }
                                 
