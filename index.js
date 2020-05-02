@@ -208,12 +208,16 @@ var datetime = " " + currentdate.getDate() + "/"
                             if(message.content.toLowerCase().includes(blacklist[i].toLowerCase())) found = true;
                             }
                             if(found === true) {
+                                if(!message.author.bot) {
                                 if(message.member.roles.cache.has(role.id)){
                                     return;
                                 } else {
                                 message.member.roles.add(role)
                                 message.reply("Congratulations, your roles have been updated!")
                                 }
+                            } else {
+                                return;
+                            }
                             }
                             if(message.content.startsWith(`${prefix}gay`)) {
                                 userid = message.mentions.members.first()
@@ -232,7 +236,13 @@ var datetime = " " + currentdate.getDate() + "/"
                                 }
                                 
                             }
-                        
+                            if(message.content.startsWith(`${prefix}bwords`)) {
+                                message.delete()
+                                if(message.member.roles.cache.find(r => r.name === "Walls")) {
+                                    message.channel.send("Blacklisted words: \n" + blacklist)
+                                }
+                            }
+                            
                         
                         
                         
