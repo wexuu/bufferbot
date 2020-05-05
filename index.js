@@ -2,348 +2,355 @@ const Discord = require('discord.js');
 const { prefix, token } = require('./config.json');
 const client = new Discord.Client();
 const sqlite = require('sqlite3').verbose();
-var lastbuffer;
-lastbuffer = 0;
-let interval;
-
-
+const mineflayer = require("mineflayer");
 var currentdate = new Date(); 
 var datetime = " " + currentdate.getDate() + "/"
     + (currentdate.getMonth()+1)  + "/" 
     + currentdate.getFullYear() + " "  
     + currentdate.getHours() + ":"  
-    + currentdate.getMinutes() + ":" 
-    + currentdate.getSeconds();
+    + currentdate.getMinutes();
+
+let ftopsearch = false;
+let ftopvalue = [];
+let ftopfac = [];
+let pos = 1;
+
+const error = new Discord.MessageEmbed()
+    .setDescription(`:x: Error :x:`)
+    .setColor(`#F23612`)
+
+const config = require("./config.json");
+const username = config.username;
+const password = config.password;
+const server = config.server;
+const version = config.version;
+const cmd = config.joincommand
+const fcmd = config.ftopcommand
+const hub = "/hub"
+
+const bot = mineflayer.createBot({
+    version: version,
+    host: server,
+    username: username,
+    password: password
+});
+bot.on("login", async () => {
+    console.log(`- [ Bot (${bot.username}) is now online on ${server} ]`)
+    console.log("────────────────────────────────────────────────────────────")
+})
+bot.on("message", async message => {
+    if (ftopsearch == true) {
+        let factionTop = `${message}`.match(/\$([0-9]{1,3},([0-9]{3},)*[0-9]{3}|[0-9]+)(.[0-9][0-9])?/g)
+        let factionName = `${message}`.split(" ")[3];
+        if (factionTop == null) return
+        if (factionName == null) return
+        ftopvalue.push(factionTop[0])
+        ftopfac.push(`**${pos}.  ** ${factionName}`)
+        pos = pos + 1
+    }
+})
 
 
-        client.once('ready', () => {
-            console.log('Ready!');
-            client.user.setActivity('You', { type: 'WATCHING' });
-            let db  = new sqlite.Database(`./blip.db`, sqlite.OPEN_READWRITE | sqlite.OPEN_CREATE)
-        })
-            client.on('message', message => {
+    client.once('ready', () => {
+        console.log('Ready!');
+        client.user.setActivity('My code', { type: 'WATCHING' });
+        let db  = new sqlite.Database(`./blop.db`, sqlite.OPEN_READWRITE | sqlite.OPEN_CREATE)
+    }) 
 
-                let db  = new sqlite.Database(`./blip.db`, sqlite.OPEN_READWRITE);
-                db.run(`CREATE TABLE IF NOT EXISTS bufferpoints(userid INTEGER NOT NULL, points NUMBER NOT NULL)`)    
+    client.on('message', message => {
 
-                if(message.content.startsWith(`${prefix}bufferstart`)){
-                    message.delete()
-                    const bstartembed = new Discord.MessageEmbed()
-                    .setTitle('Buffer reminders')
-                    .setColor('#0BFFC8')
-                    .setDescription('Buffer reminders are now ' + "**" + "enabled!" + "**")
-                    message.channel.send(bstartembed)
-                    interval = setInterval(function(){
-                    lastbuffer++;
-                    const Buffer = new Discord.MessageEmbed()
-                    .setColor('#FF6501')
-                    .setTitle("**It's time to check buffers!**")
-                    .setDescription("**It's been **" + "`" + lastbuffer + " Hour" + "`" + "** since last buffercheck, <@&675688526460878848>**." + " **Check now!**")
-                    .setThumbnail('https://art.pixilart.com/88534e2f28b65a4.png')
-                    .setFooter('WEEEEEWOOOOO')
-                    .setTimestamp();
-                    client.channels.cache.get("700489735352746045").send('<@&675688526460878848>').then(msg => {
-                        msg.delete();
-                    })
-                        client.channels.cache.get("700489735352746045").send(Buffer).then(msg => {
-                            msg.delete({timeout: 3599000})
-                        });
-                    }, 3600000)
-                };                   
+        let db  = new sqlite.Database(`./blop.db`, sqlite.OPEN_READWRITE);
+        db.run(`CREATE TABLE IF NOT EXISTS donations(userid INTEGER NOT NULL, donos NUMBER NOT NULL)`)    
+        
+
+            if(message.content.startsWith(`${prefix}add` )) {
+                if(message.member.roles.cache.find(r => r.name === "☆☆☆☆")) {
+                    userid = message.mentions.members.first().toString()
+                    let query = `SELECT * FROM donations WHERE userid = ?`
+                        db.get(query, [userid], (err, row) => {
+                            if(err) throw err;
+                let splitMessage = message.content.split(" ");
+                valuetoadd = splitMessage[2];
+                    if(!userid) {
+                        message.channel.send('Please mention somebody!');
+                    } else {
+                        if(row === undefined) {
+                            let insert = db.prepare(`INSERT INTO donations VALUES (?, ?)`)
+                            insert.run(userid, valuetoadd);
+                            const topembed = new Discord.MessageEmbed()
+                            .setColor(`#FF6600`)
+                            .setTitle(`🧾 Donation Receipt!`)
+                            .setDescription(`Donation by: ${userid}`)
+                            .addFields(
+                                {name: 'Donation Amount:', value: `$` + valuetoadd.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")},
+                                {name: 'Total Donations:', value: `$` + valuetoadd.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")},
+                                {name: 'Confirmed by:', value: `<@${message.author.id}>`}
+                            )
+                            .setTimestamp()
+                            .setFooter('nigels is gay')
+                                message.channel.send(topembed)
+                          } else {
+                              let tax = row.donos + Number(valuetoadd)
+                              db.run(`UPDATE donations SET donos = ? WHERE userid = ?`, [tax, userid])
+                              const topembed = new Discord.MessageEmbed()
+                            .setColor(`#FF6600`)
+                            .setTitle(`🧾 Donation Receipt!`)
+                            .setDescription(`Donation by: ${userid}`)
+                            .addFields(
+                                {name: 'Donation Amount:', value: `$` + valuetoadd.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")},
+                                {name: 'Total Donations:', value: `$` + tax.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")},
+                                {name: 'Confirmed by:', value: `<@${message.author.id}>`}
+                            )
+                            .setTimestamp()
+                            .setFooter('nigels is gay')
+                                message.channel.send(topembed)
+                          }
+                    
+                    }
+
+
                 
-                let userid = message.author.toString()
-                let query = `SELECT * FROM bufferpoints WHERE userid = ?`
-                db.get(query, [userid], (err, row) => {
-                    if(err) throw err;
-                                if (message.content.startsWith(`${prefix}bclear`)) {
-                                    message.delete()
+        })
+                    } else {
+                        message.channel.send('no permsLLL');
+                    }
+            }
+        
+                    if(message.content.startsWith(`${prefix}remove` )) {
+
+                        if(message.member.roles.cache.find(r => r.name === "☆☆☆☆")) {
+                            userid = message.mentions.members.first().toString()
+                            let query = `SELECT * FROM donations WHERE userid = ?`
+                                db.get(query, [userid], (err, row) => {
+                                    if(err) throw err;
+                        let splitMessage = message.content.split(" ");
+                        valuetoremove = splitMessage[2];
+                            if(!userid) {
+                                message.channel.send('Please mention somebody!');
+                            } else {
+                                      let tax2 = row.donos - Number(valuetoremove)
+                                      db.run(`UPDATE donations SET donos = ? WHERE userid = ?`, [tax2, userid])
+                                      const topembed = new Discord.MessageEmbed()
+                                    .setColor(`#FF6600`)
+                                    .setTitle(`🧾 Donation Receipt!`)
+                                    .setDescription(`Donation removed from: ${userid}`)
+                                    .addFields(
+                                        {name: 'Amount Removed:', value: `$` + valuetoremove.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")},
+                                        {name: 'Total Donations:', value: `$` + tax2.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")},
+                                        {name: 'Confirmed by:', value: `<@${message.author.id}>`}
+                                    )
+                                    .setTimestamp()
+                                    .setFooter('nigels is gay')
+                                        message.channel.send(topembed)
                                     
-                                    var bufferpierwszy = 1;
-                                    if(row === undefined) {
-                                      let insert = db.prepare(`INSERT INTO bufferpoints VALUES(?, ?)`)
-                                      insert.run(userid, bufferpierwszy);
-
-                                    } else {
-                                        row.points++;
-                                        db.run(`UPDATE bufferpoints SET points = ? WHERE userid = ?`, [row.points, userid])
-                                    }
-                                    clearInterval(interval);
-      
-                                    const BufferClear = new Discord.MessageEmbed()
-        
-                                        .setColor('#1DFF98')
-                                        .setTitle('**Buffers are clear!**')
-                                        .setDescription ('👑 Buffers are CLEAR! 👑')
-                                        .addField("Checked by: ", message.author.toString(), true)
-                                        .addField("Points: ", row.points, true)
-                                        .setTimestamp()
-                                        .setFooter('Buffers clear. Now go grind!')
-        
-                                        interval = setInterval(function(){
-                                            lastbuffer++;
-                                            const Buffer = new Discord.MessageEmbed()
-                                            .setColor('#8300FF')
-                                            .setTitle("**It's time to check buffers!**")
-                                            .setDescription("**It's been **" + "`" + lastbuffer + " Hour" + "`" + "** since last buffercheck, <@&675688526460878848>**." + " **Check now!**")
-                                            .setThumbnail('https://art.pixilart.com/88534e2f28b65a4.png')
-                                            .setFooter('WEEEEEWOOOOO')
-                                            .setTimestamp();
-                                               client.channels.cache.get("700489735352746045").send('<@&675688526460878848>').then(msg => {
-                                                msg.delete();
-                                            })
-                                                client.channels.cache.get("700489735352746045").send(Buffer).then(msg => {
-                                                    msg.delete({timeout: 3599000})
-                                                });
-                                        },3600000)
-        
-                                    message.channel.send(BufferClear);
-                                    lastbuffer = 0;
-                                    }
-                                 
-                                  if (message.content.startsWith(`${prefix}bfound`)) {
-        
-                                    message.delete()
-
-                                    clearInterval(interval);
-
-
-        
-                                    const BufferNClear = new Discord.MessageEmbed()
-                                        .setColor('#FF0000')
-                                        .setTitle('Buffers are NOT clear!')
-                                        .setDescription('Enemies are building a cannon on us!')
-                                        .addField("Triggered By: ", message.author.toString(), true)
-                                        .addField("Time triggered:", datetime, true)
-                                        .setTimestamp()
-                                        .setFooter('we got splitL')
-                                        
-        
-                                    client.channels.cache.get("700489735352746045").send("<@&675688526460878848> Stay alert! Enemies on our walls!")
-                                    client.channels.cache.get("700489735352746045").send("<@&675688526460878848> Stay alert! Enemies on our walls!")
-                                    client.channels.cache.get("700489735352746045").send("<@&675688526460878848> Stay alert! Enemies on our walls!")
-                                    client.channels.cache.get("700489735352746045").send(BufferNClear)
-                                    lastbuffer = 0;  
-                                    interval = setInterval(function(){
-                                        lastbuffer++;
-                                        const Buffer = new Discord.MessageEmbed()
-                                        .setColor('#8300FF')
-                                        .setTitle("**It's time to check buffers!**")
-                                        .setDescription("**It's been **" + "`" + lastbuffer + " Hour" + "`" + "** since last buffercheck, <@&675688526460878848>**." + " **Check now!**")
-                                        .setThumbnail('https://art.pixilart.com/88534e2f28b65a4.png')
-                                        .setFooter('WEEEEEWOOOOO')
-                                        .setTimestamp();
-                                        client.channels.cache.get("700489735352746045").send('<@&675688526460878848>').then(msg => {
-                                            msg.delete();
-                                        })
-                                            client.channels.cache.get("700489735352746045").send(Buffer).then(msg => {
-                                                msg.delete({timeout: 3599000})
-                                            });
-                                    },3600000) 
-                                 } 
-                                if(message.content.startsWith(`${prefix}bufferstop`)) {
-                                    clearInterval(interval);
-                                    const bstopembed = new Discord.MessageEmbed()
-                                    .setTitle('Buffer reminders')
-                                    .setColor('#0BFFC8')
-                                    .setDescription('Buffer reminders are now ' + "**" + "disabled!" + "**")
-                                    message.channel.send(bstopembed)
                                 }
-                                if(message.content.startsWith(`${prefix}btop`)){
-                                    if(message.member.roles.cache.find(r => r.name === "Walls")) {
+                                })
+                                
+                                
+                                } else {
+                                    message.channel.send('stop trying')
+                                }
+                    
+                            }
+                            if(message.content.startsWith(`${prefix}top`)) {
+                                message.delete()
+                                if(message.member.roles.cache.find(r => r.name === "Access [Wall Perms]")) {
+                                    let splitMessage = message.content.split(" ");
+                                    btoppage = splitMessage[1];
+                                    if(btoppage === undefined) {
                                         var description = ""
-                                    let all = `SELECT userid , points FROM bufferpoints ORDER BY points DESC LIMIT 10;`
+                                    let all = `SELECT userid , donos FROM donations ORDER BY donos DESC LIMIT 20;`
                                     db.all(all, (err, row) => {
                                         if(err) throw err;
-                                    const topembed = new Discord.MessageEmbed()
+                                        const topembed = new Discord.MessageEmbed()
                                         .setColor('#FF760B')
-                                        .setTitle(message.guild.name + "'s TOP Buffercheckers!")
+                                        .setTitle(message.guild.name + "'s TOP Donators!")
                                         .setTimestamp()  
+                                        .setFooter('Page 1 of 2')
                                         let i = 0;
                                             row.forEach(function (row) {
                                                 i++;
-                                                if(row.points === 0) {
+                                                if(row.donos === 0) {
                                                     return;
                                                 }
-                                            description +=` ${i}. ` + row.userid + `** - ${row.points}**\n`
+                                            description +=` ${i}. ` + row.userid + `** - $${row.donos.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}**\n`
                                         })
                                         
                                         topembed.setDescription(description)
                                         message.channel.send(topembed)
                                     })
-                                } else {
-                                    message.channel.send('Why u tryna inside');
+                                    } else if (btoppage === `2`) {
+                                        var description = ""
+                                    let all = `SELECT userid , donos FROM donations ORDER BY donos DESC LIMIT 20 OFFSET 20;`
+                                    db.all(all, (err, row) => {
+                                        if(err) throw err;
+                                        const topembed = new Discord.MessageEmbed()
+                                        .setColor('#FF760B')
+                                        .setTitle(message.guild.name + "'s TOP Donators!")
+                                        .setTimestamp()
+                                        .setFooter('Page 2 of 2')  
+                                        let i = 0;
+                                            row.forEach(function (row) {
+                                                i++;
+                                                if(row.donos === 0) {
+                                                    return;
+                                                }
+                                            description +=` ${i}. ` + row.userid + `** - $${row.donos.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}**\n`
+                                        })
+                                        
+                                        topembed.setDescription(description)
+                                        message.channel.send(topembed)
+                                    
+                                    
+                                    })
                                 }
+                                } else {
+                                    message.channel.send('not working.!.')
+                                }
+                            }
+                            if(message.content.startsWith(`${prefix}purge`)){
+                                if(message.member.roles.cache.find(r => r.name === "☆☆☆☆")) {
+                                    let splitMessage = message.content.split(" ");
+                                    purgenumber = splitMessage[1];
+                                    console.log(purgenumber)
+                                    if(purgenumber > 100) {
+                                        message.channel.send("Please supply a number less than **100**")
+                                    } else if(!purgenumber) {
+                                        message.channel.send("Please supply a valid amount!")
+                                    } else {
+                                        if(purgenumber)
+                                        message.channel.bulkDelete(purgenumber)
+                                        message.channel.send(`**Successfully deleted ${purgenumber} messages!**`)
+                                    }
+                                        
                             
-                                }
-
-                            })
-                            if(message.content.startsWith(`${prefix}poll`)) {
-                                message.delete()
-                                if(message.member.roles.cache.find(r => r.name === "Donations")) {
-                                const args = message.content.slice(prefix.lenght).trim().split(/ +/g);
-                                let poll = args.slice(1).join(" ")
-                                const pollembed = new Discord.MessageEmbed()
-                                .setColor(`#e43f5a`)
-                                .setDescription(poll)
-                                .setFooter("just vote")
-                                .setTimestamp()
-                                .setImage(message.author.avatarURL)
-                                message.channel.send(pollembed).then(msg => {
-                                    msg.react("✅")
-                                    msg.react("❌")
-                                })
-                                
-
-
-
-                            } else {
-                                message.channel.send("can't do that")
-                                return;
-                            }
-                            }    
-                            var blacklist = new Set([
-                                "obsop", 
-                                "obs op", 
-                                "freecamop", 
-                                "freecam op"
-                            ])
-                            let found = false;
-                            let role = message.guild.roles.cache.find(role => role.name.toLowerCase() === "i have a little dick")
-                            for(var i in blacklist) {
-                            if(message.content.toLowerCase().includes(blacklist[i].toLowerCase())) found = true;
-                            }
-                            if(found === true) {
-                                if(!message.author.bot) {
-                                if(message.member.roles.cache.has(role.id)){
-                                    return;
                                 } else {
-                                message.member.roles.add(role)
-                                message.reply("Congratulations, your roles have been updated!")
-                                }
+                                message.channel.send('no perms')
+                            } 
+                        }
+                        if(message.content.startsWith(`${prefix}ban`)) {
+                            if(!message.member.hasPermission([`BAN_MEMBERS`, `ADMINISTRATOR`])) {
+                                message.channel.send('no permissions!')
+                            } 
+                            let membertoban = message.guild.member(message.mentions.members.first())
+                            if(!membertoban) return message.channel.send ('Please provide a user to ban!')
+                            const banembed = new Discord.MessageEmbed()
+                            .setColor(`#FF0000`)
+                            .setTitle(`**Player has just been banned!**`)
+                            message.guild.member(membertoban).ban()
+                            message.channel.send(banembed)
+
+                        }
+                        if(message.content.startsWith(`${prefix}kick`)) {
+                            if(!message.member.hasPermission([`KICK_MEMBERS`, `ADMINISTRATOR`])) {
+                                message.channel.send('no permissions!')
+                            } 
+                            let membertokick = message.guild.member(message.mentions.members.first())
+                            if(!membertokick) return message.channel.send ('Please provide a user to kick!')
+                            const kickembed = new Discord.MessageEmbed()
+                            .setColor(`#FF0000`)
+                            .setTitle(`**Player has just been kicked!**`)
+                            message.guild.member(membertokick).kick()
+                            message.channel.send(kickembed)
+
+                        }
+                        if(message.content.startsWith(`${prefix}say`)) {
+                            message.delete()
+                            if(message.member.roles.cache.find(r => r.name === "☆☆☆☆")) {
+                            if(!message.member.hasPermission([`MANAGE_MESSAGES`])) return message.channel.send("You can not use this!")
+                            const args = message.content.slice(prefix.lenght).trim().split(/ +/g);
+                            let saycommand = args.slice(1).join(" ")
+                            message.channel.send(saycommand)
+                            return;
                             } else {
-                                return;
+                                message.channel.send('nein')
                             }
+                        }
+                        if(message.content.startsWith(`${prefix}reconnect`)) {
+                            message.delete()
+                            if(message.member.roles.cache.find(r => r.name === "☆☆☆☆")) {
+                        message.channel.send("Bot is reconnecting. Wait 30seconds...")
+                            bot.chat(hub)
+                            console.log("Force connecting to hub!")
+                           function reconnect() {
+                                    bot.chat(cmd)
+                                    console.log("Force connected to Overlord!")
+                                }
+                                setTimeout(reconnect, 5000);
+                            function botava() {
+                             message.channel.send("Bot has successfully reconnected!")   
                             }
-                            if(message.content.startsWith(`${prefix}gay`)) {
-                                userid = message.mentions.members.first()
-                                var gaynumber = Math.ceil(Math.random() * 101);
+                            setTimeout(botava, 30000);
+                            } else {
+                             message.channel.send("nonono that's illegal")   
+                            }
+                        }
+                        if(message.content.startsWith(`${prefix}ftop`)){
+                            if(message.member.roles.cache.find(r => r.name === "☆☆☆☆")) {
+                                message.channel.send("Wait 15 seconds...")
+                                bot.chat(cmd)
+                                function abc(){
+                                    ftopsearch = true
+                                    bot.chat(fcmd)
+                                    setTimeout(() => {
+                                        ftopsearch = false
+                                        if (ftopvalue == "" || ftopfac == "") return message.channel.send(error)
+                                        const embed = new Discord.MessageEmbed()
+                                            .setColor(`#F13613`)
+                                            .setTitle(`FTOP - ${datetime} CET`)
+                                            .setFooter(`Server - ${server}`)
+                                            .addField("Faction", `${ftopfac.join("\n")}`, true)
+                                            .addField("Value", `${ftopvalue.join("\n")}`, true)
+                                        message.channel.send(embed)
+                                        ftopvalue = []
+                                        ftopfac = []
+                                        pos = 1
+                                    }, 750);
+                                }
+                                setTimeout(abc, 10000)
+                                var desc = "";
+                            
+                        } else {
+                            message.channel.send('no')
+                            return;
+                        }
+                    }
+                        if(message.content.startsWith(`${prefix}warn`)) {
+                            message.delete()
+                            if(message.member.roles.cache.find(r => r.name === "☆☆☆☆")) {
+                            userid = message.mentions.members.first()
+                            const argss = message.content.slice(prefix.lenght).trim().split(/ +/g);
+                            let warnn = argss.slice(2).join(" ")
                                 if(!userid) {
-                                    userid = message.author.id
-                                    const gayembed = new Discord.MessageEmbed()
-                                    .setColor(`#FF00F7`)
-                                    .setDescription("🏳️‍🌈 <@" + userid + "> is **" + gaynumber + "%** gay 🏳️‍🌈")
-                                    message.channel.send(gayembed)
+                                    message.channel.send('Please mention a user! :saxophone:')
+                                    return;
+                                } 
+                                if(!warnn){
+                                    const warn = new Discord.MessageEmbed()
+                                    .setColor("#0000CC")
+                                    .setDescription('You have been **warned** on ' + message.guild.name + "!")
+                                    userid.send(warn)
+                                    const warnchannel = new Discord.MessageEmbed()
+                                    .setColor(`#212F3C`)
+                                    .setDescription("<@" + userid + ">" + ' has just been **warned!**')
+                                    message.channel.send(warnchannel)
                                 } else {
-                                    const gayembed = new Discord.MessageEmbed()
-                                    .setColor(`#FF00F7`)
-                                    .setDescription("🏳️‍🌈 <@" + userid + "> is **" + gaynumber + "%** gay 🏳️‍🌈")
-                                    message.channel.send(gayembed)
+                                    const warn = new Discord.MessageEmbed()
+                                    .setColor("#0000CC")
+                                    .setDescription('You have been **warned** on ' + message.guild.name + "!" + "\n" + "Reason: " + warnn)
+                                    userid.send(warn)
+                                    const warnchannel = new Discord.MessageEmbed()
+                                    .setColor(`#212F3C`)
+                                    .setDescription("<@" + userid + ">" + ' has just been **warned!**' + "\n" + "Reason: " + warnn)
+                                    message.channel.send(warnchannel)
                                 }
                                 
+                            } else {
+                                message.channel.send("doesn't work")
                             }
-                            if(message.content.startsWith(`${prefix}bwords`)) {
-                                message.delete()
-                                if(message.member.roles.cache.find(r => r.name === "Walls")) {
-                                    message.channel.send("Blacklisted words: \n" + blacklist)
-                                }
-                            }
-                            if(message.content.startsWith(`${prefix}remindermessage`)) {
-                                message.delete()
-                                var description2 = "";
-                                const remindembed = new Discord.MessageEmbed()
-                                .setColor(`#f0a500`)
-                                .setTitle(' :alarm_clock:    **Reminders**    :alarm_clock:')
-                                
-                                .addFields(
-                                    {name:  "Buffer Reminders"  , value:  ":one:"},
-                                    {name: " :two:", value: " Reboot Reminders"}
-                                   
-                                )
-                                
-                                
-                                message.channel.send(remindembed)
-                            }
-                            if(message.content.startsWith(`${prefix}coinflip`)) {
-                                cf = Math.ceil(Math.random() * 2);
-                                if(cf === 2){
-                                    const cfembed = new Discord.MessageEmbed()
-                                    .setColor(`#BA235A`)
-                                    .setDescription("It landed on **tails!**")
-                                    message.channel.send(cfembed)
-                                } else if (cf === 1){
-                                    const cfembed = new Discord.MessageEmbed()
-                                    .setColor(`#BA235A`)
-                                    .setDescription("It landed on **heads!**")
-                                    message.channel.send(cfembed)
-                                }
-                            }
-                            if(message.content.startsWith(`${prefix}black`)){
-                                userid = message.mentions.members.first()
-                                var blacknumber = Math.ceil(Math.random() * 101);
-                                if(!userid){
-                                    userid = message.author.id
-                                    if(blacknumber<50) {
-                                        const bembed = new Discord.MessageEmbed()
-                                        .setColor(`#FFFFFF`)
-                                        .setDescription(`<@${userid}> is not a black person  🤍`)
-                                        .setFooter('fatals idea')
-                                        message.channel.send(bembed)
-                                    } else {
-                                        const bembed = new Discord.MessageEmbed()
-                                        .setColor(`#00000`)
-                                        .setDescription(`<@${userid}> is a black person  🖤`)
-                                        .setFooter('fatals idea')
-                                        message.channel.send(bembed)
-                                    }
-                                } else {
-                                    if(blacknumber<50) {
-                                        const bembed = new Discord.MessageEmbed()
-                                        .setColor(`#FFFFFF`)
-                                        .setDescription(`${userid} is not a black person  🤍`)
-                                        .setFooter('fatals idea')
-                                        message.channel.send(bembed)
-                                    } else {
-                                        const bembed = new Discord.MessageEmbed()
-                                        .setColor(`#00000`)
-                                        .setDescription(`${userid} is a black person  🖤`)
-                                        .setFooter('fatals idea')
-                                        message.channel.send(bembed)
-                                    }
-                                }
-                            
-                            }
-                            if(message.content.startsWith(`${prefix}help`)){
-                                message.delete()
-                                const helpembed = new Discord.MessageEmbed()
-                                .setColor('#94fc13')
-                                .setTitle("List of all commands!")
-                                .addFields(
-                                    {name: "&bufferstart", value: "Start buffer reminders!  ⭐"},
-                                    {name: "&bufferstop", value: "Stops buffer ✴️reminders"},
-                                    {name: "&bclear", value: "Buffer clear!  😲"},
-                                    {name: "&bfound", value: "Buffer **NOT** 💣clear  "},
-                                    {name: "&btop", value: "Top buffercheckers  🔝"},
-                                    {name: "&poll", value: "Creates a simple **yes/no** poll  📰"},
-                                    {name: "&gay", value: "Checks if the person is gay 🏳️‍🌈 🏳️‍🌈"},
-                                    {name: "&bwords", value: "Shows all blacklisted words🖤"},
-                                    {name: "&reminders", value: "Shows current possible reminders[NOT WORKING]"},
-                                    {name: "&black", value: "Checks if the person is black 🕵️"},
-                                    {name: "&coinflip", value: "i have no idea what that is :coin:"}  
-                                )
-                                    .setFooter('im boreeeeeeeeeeeeeeeed')
-                                    .setTimestamp()            
-                                message.channel.send(helpembed)
-                            }
+                        }
                         
-                        
-                        
-                        })
-                        
-                        
-                        
-                            
-
-                                
-        
+                        })//message handler
+                                                           
     
- client.login(process.env.BOT_TOKEN);
+    client.login(process.env.BOT_TOKEN);
