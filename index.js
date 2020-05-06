@@ -67,22 +67,33 @@ var datetime = " " + currentdate.getDate() + "/"
                                     if(row === undefined) {
                                       let insert = db.prepare(`INSERT INTO bufferpoints VALUES(?, ?)`)
                                       insert.run(userid, bufferpierwszy);
+                                      const BufferClear = new Discord.MessageEmbed()
+        
+                                      .setColor('#1DFF98')
+                                      .setTitle('**Buffers are clear!**')
+                                      .setDescription ('👑 Buffers are CLEAR! 👑')
+                                      .addField("Checked by: ", message.author.toString(), true)
+                                      .addField("Points: ", "1", true)
+                                      .setTimestamp()
+                                      .setFooter('Buffers clear. Now go grind!')
+                                      message.channel.send(BufferClear);
 
                                     } else {
                                         row.points++;
                                         db.run(`UPDATE bufferpoints SET points = ? WHERE userid = ?`, [row.points, userid])
+                                        const BufferClear = new Discord.MessageEmbed()
+        
+                                      .setColor('#1DFF98')
+                                      .setTitle('**Buffers are clear!**')
+                                      .setDescription ('👑 Buffers are CLEAR! 👑')
+                                      .addField("Checked by: ", message.author.toString(), true)
+                                      .addField("Points: ", row.points, true)
+                                      .setTimestamp()
+                                      .setFooter('Buffers clear. Now go grind!')
+                                      message.channel.send(BufferClear);
                                     }
                                     clearInterval(interval);
       
-                                    const BufferClear = new Discord.MessageEmbed()
-        
-                                        .setColor('#1DFF98')
-                                        .setTitle('**Buffers are clear!**')
-                                        .setDescription ('👑 Buffers are CLEAR! 👑')
-                                        .addField("Checked by: ", message.author.toString(), true)
-                                        .addField("Points: ", row.points, true)
-                                        .setTimestamp()
-                                        .setFooter('Buffers clear. Now go grind!')
         
                                         interval = setInterval(function(){
                                             lastbuffer++;
@@ -101,7 +112,7 @@ var datetime = " " + currentdate.getDate() + "/"
                                                 });
                                         },3600000)
         
-                                    message.channel.send(BufferClear);
+                                    
                                     lastbuffer = 0;
                                     } else {
                                         return;
@@ -398,8 +409,47 @@ var datetime = " " + currentdate.getDate() + "/"
                                 }
                             }
                             if(message.content.startsWith(`${prefix}coinflip`)) {
-                                coinflip = Math.ceil(Math.random() * 101)
-                                console.log(coinflip)
+                                coinflip = Math.ceil(Math.random() * 2)
+                                if(coinflip ===2){
+                                    const coinembed = new Discord.MessageEmbed()
+                                    .setDescription("It landed on **tails!**")
+                                    message.channel.send(coinembed)
+                                } else if (coinflip === 1){
+                                    const coinembed = new Discord.MessageEmbed()
+                                    .setDescription("It landed on **heads!**")
+                                    message.channel.send(coinembed)
+                                }
+                            }
+                            if(message.content.startsWith(`${prefix}ginger`)){
+                                userid5 = message.mentions.members.first()
+                                if(!userid5) {
+                                    userid5 = message.author.id
+                                    gingerpercentage = Math.ceil(Math.random() * 101)
+                                    if(gingerpercentage >= 50){
+                                        const gingerembed = new Discord.MessageEmbed()
+                                        .setColor('#ca5116')
+                                        .setDescription(`<@${userid5}> is ginger 🐵`)
+                                        message.channel.send(gingerembed)
+                                    } else {
+                                        const gingerembed = new Discord.MessageEmbed()
+                                        .setColor('#ca5116')
+                                        .setDescription(`<@${userid5}> is not ginger 🙈`)
+                                        message.channel.send(gingerembed)
+                                    }
+                                } else {
+                                    gingerpercentage = Math.ceil(Math.random() * 101) 
+                                    if(gingerpercentage >= 50){
+                                        const gingerembed = new Discord.MessageEmbed()
+                                        .setColor('#ca5116')
+                                        .setDescription(`${userid} is ginger 🐵`)
+                                        message.channel.send(gingerembed)
+                                    } else {
+                                        const gingerembed = new Discord.MessageEmbed()
+                                        .setColor('#ca5116')
+                                        .setDescription(`${userid} is not ginger 🙈`)
+                                        message.channel.send(gingerembed)
+                                    }
+                                }
                             }
                             
 
